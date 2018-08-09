@@ -1,46 +1,39 @@
 import React, { Component, Fragment } from 'react';
-import { scrollEvents, animateOnScroll } from './utils/sportiveScroll'
+import { scrollEvents } from './utils/sportiveScroll'
 import { TweenMax } from 'gsap/TweenMax'
 
 class App extends Component {
 
 	componentDidMount() {
       // Animando 1 elemento
-      // TweenMax.set(this.elementoBloco1, { opacity: 0, x: 100 })
+      const eventObj = {
+         direction: 'down',
+         baseElement: this.elementoBloco1,
+         baseElementVisibilityPercentage: 70,
+         callback: () => {
+            console.log('Evento 1')
+            // TweenMax.staggerTo(this.elementoBloco1.children, .5, { x: 100 }, 0.25)
+         }
+      }
+      scrollEvents.addEventToScroll(eventObj)
 
-      
-      scrollEvents.addEventToScrollUp(() => {
-         console.log('Scroll up')
-         animateOnScroll(
-            this.elementoBloco1,
-            () => {
-               TweenMax.staggerTo(this.elementoBloco1.children, .5, { x: 100 }, 0.25)
-            },
-            99)
+      // Animando 2 elemento
+      scrollEvents.addEventToScroll({
+         direction: 'down',
+         baseElement: this.elementoBloco2,
+         baseElementVisibilityPercentage: 70,
+         callback: () => {
+            console.log('Evento 2')
+            // TweenMax.staggerTo(this.elementoBloco2.children, .5, { x: 100 }, 0.25)
+         }
       })
-      
-      // // Animando 2 elemento
-      // scrollEvents.addEventToScrollDown(() => {
-      //    const percent = getVisibilityPercentageOf(this.elementoBloco2)
-      //    const is50PercentVisibleOrMore = percent > 50
-
-      //    console.log('percentage 2', percent, hasScrolledOver(this.elementoBloco2))
-		// 	if (hasScrolledOver(this.elementoBloco3) && is50PercentVisibleOrMore) {
-		// 		TweenMax.to(this.elementoBloco3, .3, { x: 100 })
-		// 	}
-      // })
-
-      // // Animando 3 elemento
-      // scrollEvents.addEventToScrollDown(() => {
-      //    const percent = getVisibilityPercentageOf(this.elementoBloco3)
-      //    const is50PercentVisibleOrMore = percent > 50
-
-      //    console.log('percentage 3', percent, hasScrolledOver(this.elementoBloco3), this.elementoBloco3)
-		// 	if (hasScrolledOver(this.elementoBloco2) && is50PercentVisibleOrMore) {
-		// 		TweenMax.to(this.elementoBloco2, .5, { x: -100 })
-		// 	}
-      // })
    }
+
+   componentWillUnmount() {
+      // Remove All Events
+      scrollEvents.removeAllEventsFromScroll()
+   }
+
 
    state = {
       number: 0

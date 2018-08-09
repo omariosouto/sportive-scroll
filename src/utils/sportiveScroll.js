@@ -1,40 +1,58 @@
 import EventEmitter from 'event-emitter'
+import allOf from 'event-emitter/all-off'
 import throttle from 'lodash/throttle';
+
+export const init = () => {
+    window.addEventListener('scroll', scrollManager)
+}
 
 // Bind scroll Events keeping just one scroll event
 export const scrollEvents = (() => {
-    const _scrollEvents = new EventEmitter()
-    const subscribers = new Map()
+    const _scrollEventsEmitter = new EventEmitter()
+    const _subscribers = new Map()
 
-    const addEventToScrollDown = (callback) => {
-        subscribers.set(callback, throttle(callback, 200))
-        _scrollEvents.on('scrollDown', subscribers.get(callback))
+    const addEventToScroll = (eventInfo) => {
+        const { direction } = eventInfo
+
+        formatEventCallback(eventInfo)
+        registerEvent(direction, eventInfo)
     }
-    const removeEventFromScrollDown = (callback) => {
-        _scrollEvents.off('scrollDown', subscribers.get(callback));
-        subscribers.delete(callback)
+    const removeEventFromScroll = (eventInfo) => {
+        const { direction } = eventInfo
+
+        _scrollEventsEmitter.off(direction, _subscribers.get(eventInfo));
+        _subscribers.delete(eventInfo)
     }
 
-    const addEventToScrollUp = (callback) => {
-        subscribers.set(callback, throttle(callback, 200))
-        _scrollEvents.on('scrollUp', subscribers.get(callback))
+    const removeAllEventsFromScroll = () => {
+        console.log('Remove all')
+        allOf(_scrollEventsEmitter)
+        _subscribers.clear()
+        console.log(_scrollEventsEmitter)
+        console.log(_subscribers)
     }
-    const removeEventFromScrollUp = (callback) => {
-        _scrollEvents.off('scrollUp', subscribers.get(callback));
-        subscribers.delete(callback)
+
+    // Utils
+    const formatEventCallback = (eventInfo) => {
+        const { callback, baseElement, baseElementVisibilityPercentage } = eventInfo
+        const animationFunction = animateOnScroll(baseElement, callback, baseElementVisibilityPercentage)
+        _subscribers.set(eventInfo, throttle(animationFunction, 200))
     }
+    const registerEvent = (direction, eventInfo) => {
+        _scrollEventsEmitter.on(direction, _subscribers.get(eventInfo))
+    }
+
 
     return {
-        addEventToScrollDown,
-        addEventToScrollUp,
-        removeEventFromScrollDown,
-        removeEventFromScrollUp,
-        triggerScrollUp: () => _scrollEvents.emit('scrollUp'),
-        triggerScrollDown: () => _scrollEvents.emit('scrollDown')
+        addEventToScroll,
+        removeEventFromScroll,
+        removeAllEventsFromScroll,
+        triggerScrollUp: () => _scrollEventsEmitter.emit('up'),
+        triggerScrollDown: () => _scrollEventsEmitter.emit('down')
     }
 })()
 
-// Scroll Manager (addEventListener)
+// Scroll Manager (this is the unique addEventListener)
 let lastScrollTop = 0;
 export function scrollManager() {
     const scrollTopPosition = window.pageYOffset || document.documentElement.scrollTop;
@@ -49,7 +67,7 @@ export function scrollManager() {
 }
 
 
-// Utils (ways to check if element should animate or something)
+// ==== Utils (ways to check if element should animate or something) ============================ 
 export function hasScrolledOver(element, percentage) {
     if(element.getBoundingClientRect().top < window.innerHeight) {
       return true
@@ -77,21 +95,22 @@ export function getVisibilityPercentageOf(element) {
         //partial (top)
         percent = Math.round((boxBottom - screenTop) / boxHeight * 100);
     }
-    console.log(percent)
     return percent
 }
 
 export const animateOnScroll = (element, animateCallback, visibilityPercentageToShow) => {
-    const percent = getVisibilityPercentageOf(element)
-    const isVisible = percent > 0
-    const is50PercentVisibleOrMore = percent > visibilityPercentageToShow
-
-    if(isVisible && is50PercentVisibleOrMore) {
-       console.log(`mostra passou de ${visibilityPercentageToShow}%`)
-       animateCallback()
-    }
-    if(!isVisible && hasScrolledOver(element)) {
-       console.log(`mostra passou passou`)
-       animateCallback()
+    return () => {
+        const percent = getVisibilityPercentageOf(element)
+        const isVisible = percent > 0
+        const is50PercentVisibleOrMore = percent > visibilityPercentageToShow
+    
+        if(isVisible && is50PercentVisibleOrMore) {
+           console.log(`mostra passou de ${visibilityPercentageToShow}%`)
+           animateCallback()
+        }
+        if(!isVisible && hasScrolledOver(element)) {
+           console.log(`mostra passou passou`)
+           animateCallback()
+        }
     }
  }
