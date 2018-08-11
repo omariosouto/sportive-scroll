@@ -6,16 +6,16 @@ class App extends Component {
 
 	componentDidMount() {
       // Animando 1 elemento
-      const eventObj = {
+      const block1EventObj = {
          direction: 'down',
          baseElement: this.elementoBloco1,
          baseElementVisibilityPercentage: 70,
          callback: () => {
             console.log('Evento 1')
-            // TweenMax.staggerTo(this.elementoBloco1.children, .5, { x: 100 }, 0.25)
+            TweenMax.staggerTo(this.elementoBloco1.children, .5, { x: 100 }, 0.25)
          }
       }
-      scrollEvents.addEventToScroll(eventObj)
+      scrollEvents.addEventToScroll(block1EventObj)
 
       // Animando 2 elemento
       scrollEvents.addEventToScroll({
@@ -24,9 +24,33 @@ class App extends Component {
          baseElementVisibilityPercentage: 70,
          callback: () => {
             console.log('Evento 2')
-            // TweenMax.staggerTo(this.elementoBloco2.children, .5, { x: 100 }, 0.25)
+            TweenMax.staggerTo(this.elementoBloco2.children, .5, { x: 100 }, 0.25)
          }
-      })
+	  })
+	  
+	  // Animando 3 elemento
+	  TweenMax.to(this.elementoBloco3, 2 , { rotation: -720, scale: 0 })
+      scrollEvents.addEventToScroll({
+		direction: 'down',
+		baseElement: this.elementoBloco3,
+		baseElementVisibilityPercentage: 70,
+		callback: () => {
+		   console.log('Evento 3')
+		   TweenMax.to(this.elementoBloco3, 2 , { rotation: 720, scale: 1 })
+		   TweenMax.staggerTo(this.elementoBloco3.children, .5, { x: 100 }, 0.25)
+		}
+	 })
+
+      // Animando 4 elemento
+      scrollEvents.addEventToScroll({
+		direction: 'down',
+		baseElement: this.elementoBloco4,
+		baseElementVisibilityPercentage: 70,
+		callback: () => {
+		   console.log('Evento 4')
+		   TweenMax.staggerTo(this.elementoBloco4.children, .5, { x: 100 }, 0.25)
+		}
+	 })
    }
 
    componentWillUnmount() {
@@ -36,12 +60,12 @@ class App extends Component {
 
 
    state = {
-      number: 0
+      number: 100
    }
 
    counter = () => {
       this.setState({
-         number: this.state.number + 1
+         number: this.state.number + 30
       })
    }
    
@@ -52,8 +76,7 @@ class App extends Component {
 			<Fragment>
             {this.state.number}
             <button onClick={this.counter}>INCREMENT</button>
-				{/* Fazer um video de fundo com as notificações entrando */}
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 215 28">
+				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40" style={ { width: this.state.number } }>
 					<text x="0" y="15" fill="red">Olá</text>
 				</svg>
 
@@ -100,8 +123,6 @@ class App extends Component {
 					<p>lorem osadusah sdhuh uasdsua </p>
 					<p>lorem osadusah sdhuh uasdsua </p>
 				</div>
-
-				{/* Fazer stagger de uma lista de itens com animação doida antes no scroll */}
 			</Fragment>
 		);
 	}

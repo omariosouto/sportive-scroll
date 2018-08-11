@@ -11,4 +11,9 @@ body {
   height: 400px;
   background-color: powderblue;
   margin-top: 50px;
+  overflow: hidden;
+}
+
+.block p {
+  width: 100%;
 }
