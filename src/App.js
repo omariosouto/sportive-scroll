@@ -9,7 +9,7 @@ class App extends Component {
       const block1EventObj = {
          direction: 'down',
          baseElement: this.elementoBloco1,
-         baseElementVisibilityPercentage: 70,
+         baseElementVisibilityPercentage: 99,
          callback: () => {
             console.log('Evento 1')
             TweenMax.staggerTo(this.elementoBloco1.children, .5, { x: 100 }, 0.25)
@@ -23,7 +23,7 @@ class App extends Component {
          baseElement: this.elementoBloco2,
          baseElementVisibilityPercentage: 70,
          callback: () => {
-            console.log('Evento 2')
+			console.log('Evento 2')
             TweenMax.staggerTo(this.elementoBloco2.children, .5, { x: 100 }, 0.25)
          }
 	  })

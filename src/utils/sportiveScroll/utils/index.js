@@ -32,12 +32,12 @@ export const animateOnScroll = (element, animateCallback, visibilityPercentageTo
     return () => {
         const percent = getVisibilityPercentageOf(element)
         const isVisible = percent > 0
-        const is50PercentVisibleOrMore = percent > visibilityPercentageToShow
+        const isVisibleAccordingWithPercentageDefined = percent > visibilityPercentageToShow
         const isDirectionUp = direction === 'up'
         const isDirectionDown = direction === 'down'
         
         // Scroll Down
-        if(isVisible && is50PercentVisibleOrMore) {
+        if(isVisible && isVisibleAccordingWithPercentageDefined) {
             // console.log(`mostra passou de ${visibilityPercentageToShow}%`)
             animateCallback()
         }
