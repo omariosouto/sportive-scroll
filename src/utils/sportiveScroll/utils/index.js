@@ -1,3 +1,17 @@
+import throttle from 'lodash/throttle';
+// const throttle = (func, limit) => {
+//     let inThrottle
+//     return function() {
+//       const args = arguments
+//       const context = this
+//       if (!inThrottle) {
+//         func.apply(context, args)
+//         inThrottle = true
+//         setTimeout(() => inThrottle = false, limit)
+//       }
+//     }
+//   }
+
 export function hasScrolledOver(element, percentage) {
     if(element.getBoundingClientRect().top < window.innerHeight) {
       return true
@@ -28,27 +42,18 @@ export function getVisibilityPercentageOf(element) {
     return percent
 }
 
-export const animateOnScroll = (element, animateCallback, visibilityPercentageToShow, direction) => {
-    return () => {
-        const percent = getVisibilityPercentageOf(element)
-        const isVisible = percent > 0
-        const isVisibleAccordingWithPercentageDefined = percent > visibilityPercentageToShow
-        const isDirectionUp = direction === 'up'
-        const isDirectionDown = direction === 'down'
+export const prepareEventHandlerForScroll = (element, callback, visibilityPercentageToShow, direction) => {
+    return throttle(() => {
         
-        // Scroll Down
-        if(isVisible && isVisibleAccordingWithPercentageDefined) {
-            // console.log(`mostra passou de ${visibilityPercentageToShow}%`)
-            animateCallback()
-        }
-        if(!isVisible && hasScrolledOver(element) && isDirectionDown) {
-            // console.log(`mostra passou passou [down]`)
-            animateCallback()
-        }
+        const distanceToShow = 500
+        const shouldRenderCallback = element.getBoundingClientRect().top >= -distanceToShow && element.getBoundingClientRect().top <= distanceToShow
+
         
-        if(!isVisible && !hasScrolledOver(element) && isDirectionUp) {
-            // console.log(`mostra passou passou [up]`)
-            animateCallback()
+        if(shouldRenderCallback) { // Renderiza somente se estivermos perto do elemento
+            // console.log(element.getBoundingClientRect().top, -distanceToShow)
+            callback()
+
         }
-    }
+
+    }, 500)
  }

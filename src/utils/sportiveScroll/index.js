@@ -1,55 +1,52 @@
 import EventEmitter from 'event-emitter'
 import removeAllOf from 'event-emitter/all-off'
-import throttle from 'lodash/throttle';
-import { animateOnScroll } from './utils'
+import { prepareEventHandlerForScroll } from './utils'
 import scrollManager from './scrollManagerHandler'
 
-
-
-
-export const init = () => {
-    window.addEventListener('scroll', scrollManagerHandler)
-}
-
-// Bind scroll Events keeping just one scroll event
+// Gerenciador de eventos up/down
 export const scrollEvents = (() => {
     const _scrollEventsEmitter = new EventEmitter()
-    const _subscribers = new Map()
+    const _eventHandlers = new Map()
 
     const addEventToScroll = (eventInfo) => {
         const { direction } = eventInfo
         if(isValidDirection(direction)) {
-            formatEventCallback(eventInfo)
+            prepareEventCallback(eventInfo)
             registerEvent(direction, eventInfo)
         } else {
-            console.error('Please, insert an valid direction.')
+            console.error('Please, insert an valid direction, "up" or "down".')
         }
     }
 
     const removeEventFromScroll = (eventInfo) => {
         const { direction } = eventInfo
         if(isValidDirection(direction)) {
-            _scrollEventsEmitter.off(direction, _subscribers.get(eventInfo));
-            _subscribers.delete(eventInfo)
+            unregisterEvent(direction, eventInfo)
         } else {
-            console.error('Please, insert an valid direction.')
+            console.error('Please, insert an valid direction, "up" or "down".')
         }
     }
 
     const removeAllEventsFromScroll = () => {
         removeAllOf(_scrollEventsEmitter)
-        _subscribers.clear()
+        _eventHandlers.clear()
     }
 
     // Utils
-    const formatEventCallback = (eventInfo) => {
+    const prepareEventCallback = (eventInfo) => {
         const { callback, baseElement, baseElementVisibilityPercentage, direction } = eventInfo
-        const animationFunction = animateOnScroll(baseElement, callback, baseElementVisibilityPercentage, direction)
-        _subscribers.set(eventInfo, throttle(animationFunction, 200))
+        const eventHandlerPrepared = prepareEventHandlerForScroll(baseElement, callback, baseElementVisibilityPercentage, direction)
+        _eventHandlers.set(eventInfo, eventHandlerPrepared)
     }
+
     const registerEvent = (direction, eventInfo) => {
-        _scrollEventsEmitter.on(direction, _subscribers.get(eventInfo))
+        _scrollEventsEmitter.on(direction, _eventHandlers.get(eventInfo))
     }
+    const unregisterEvent = (direction, eventInfo) => {
+        _scrollEventsEmitter.off(direction, _eventHandlers.get(eventInfo));
+        _eventHandlers.delete(eventInfo)
+    }
+
     const isValidDirection = (direction) => {
         const isUp = direction === 'up'
         const isDown = direction === 'down'
@@ -64,13 +61,19 @@ export const scrollEvents = (() => {
         removeEventFromScroll,
         removeAllEventsFromScroll,
         triggerScrollUp: () => _scrollEventsEmitter.emit('up'),
-        triggerScrollDown: () => _scrollEventsEmitter.emit('down')
+        triggerScrollDown: () => _scrollEventsEmitter.emit('down'),
+        triggerScrollUpAndDown: () => {
+            _scrollEventsEmitter.emit('down')
+            _scrollEventsEmitter.emit('up')
+        }
     }
 })()
 
 const scrollManagerHandler = scrollManager(scrollEvents)
 
-
+export const init = () => {
+    window.addEventListener('scroll', scrollManagerHandler)
+}
 
 
   
